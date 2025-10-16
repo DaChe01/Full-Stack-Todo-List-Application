@@ -13,6 +13,8 @@ export default function RegisterPage() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    
+    console.log("Submitting registration", { name, email, password });  //for debugging
 
     if (password !== confirm) {
       setError("Passwords do not match");
@@ -21,6 +23,9 @@ export default function RegisterPage() {
 
     try {
       const res = await API.post("/auth/register", { name, email, password });
+
+      console.log("Response:", res.data); // ✅ check backend response
+      
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("name", res.data.name || name);
       navigate("/tasks");
@@ -79,3 +84,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+
