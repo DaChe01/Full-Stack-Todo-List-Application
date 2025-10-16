@@ -3,12 +3,20 @@ import API from "../api/axios";
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [priority, setPriority] = useState("Medium");
-  const [dueDate, setDueDate] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newPriority, setNewPriority] = useState("Medium");
+  const [newDueDate, setNewDueDate] = useState("");
+  const [editingTask, setEditingTask] = useState(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingDescription, setEditingDescription] = useState("");
+  const [editingPriority, setEditingPriority] = useState("Medium");
+  const [editingDueDate, setEditingDueDate] = useState("");
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("date"); // default sort by date
+  const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("date");
+
+  const name = localStorage.getItem("name") || "Developer";
 
   const fetchTasks = async () => {
     try {
@@ -16,7 +24,7 @@ export default function Dashboard() {
       setTasks(res.data);
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.status === 401) handleLogout();
+      if (err.response?.status === 401) handleLogout();
     }
   };
 
@@ -27,30 +35,59 @@ export default function Dashboard() {
   }, []);
 
   const addTask = async () => {
-    if (!newTask) return;
+    if (!newTitle) return;
     try {
       const res = await API.post("/tasks", {
-        title: newTask,
-        priority,
-        dueDate: dueDate || null,
+        title: newTitle,
+        description: newDescription,
+        priority: newPriority,
+        due_date: newDueDate || null,
       });
       setTasks([res.data, ...tasks]);
-      setNewTask("");
-      setPriority("Medium");
-      setDueDate("");
+      setNewTitle("");
+      setNewDescription("");
+      setNewPriority("Medium");
+      setNewDueDate("");
     } catch (err) {
       console.error(err);
     }
   };
 
+  const startEditing = (task) => {
+    setEditingTask(task.id);
+    setEditingTitle(task.title);
+    setEditingDescription(task.description);
+    setEditingPriority(task.priority || "Medium");
+    setEditingDueDate(task.due_date || "");
+  };
+
+  const saveEdit = async () => {
+    try {
+      const res = await API.put(`/tasks/${editingTask}`, {
+        title: editingTitle,
+        description: editingDescription,
+        priority: editingPriority,
+        due_date: editingDueDate || null,
+      });
+      setTasks(tasks.map((t) => (t.id === editingTask ? res.data : t)));
+      cancelEdit();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingTask(null);
+    setEditingTitle("");
+    setEditingDescription("");
+    setEditingPriority("Medium");
+    setEditingDueDate("");
+  };
+
   const toggleComplete = async (task) => {
     try {
-      await API.patch(`/tasks/${task.id}/complete`);
-      setTasks(
-        tasks.map((t) =>
-          t.id === task.id ? { ...t, completed: !t.completed } : t
-        )
-      );
+      const res = await API.patch(`/tasks/${task.id}/complete`);
+      setTasks(tasks.map((t) => (t.id === task.id ? res.data : t)));
     } catch (err) {
       console.error(err);
     }
@@ -74,65 +111,49 @@ export default function Dashboard() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("name");
+    window.location.href = "/";
+  };
+
   const filteredTasks = tasks
-    .filter((task) => {
-      if (filter === "active") return !task.completed;
-      if (filter === "completed") return task.completed;
-      return true;
-    })
-    .filter((task) =>
-      task.title.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter((t) => (filter === "active" ? !t.completed : filter === "completed" ? t.completed : true))
+    .filter((t) => t.title.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sort === "priority") {
         const prioOrder = { High: 1, Medium: 2, Low: 3 };
         return (prioOrder[a.priority] || 4) - (prioOrder[b.priority] || 4);
-      } else if (sort === "alphabet") {
-        return a.title.localeCompare(b.title);
-      } else {
-        return new Date(a.dueDate || a.created_at) - new Date(b.dueDate || b.created_at);
-      }
+      } else if (sort === "alphabet") return a.title.localeCompare(b.title);
+      else return new Date(a.due_date || a.created_at) - new Date(b.due_date || b.created_at);
     });
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
 
   return (
     <div className="dashboard-container">
-      {/* Header */}
+      {/* Welcome */}
+      <div className="header">
+        <h2>Welcome, {name} 👋</h2>
+        <p className="motivation">Stay Organized. Stay Consistent. Keep Building 🚀</p>
+      </div>
+
       <h1>Tasks Dashboard</h1>
 
       {/* Add Task */}
       <div className="add-task-form">
-        <input
-          type="text"
-          placeholder="Add a new task..."
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-        />
-        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+        <input type="text" placeholder="Task title..." value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+        <input type="text" placeholder="Description..." value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+        <select value={newPriority} onChange={(e) => setNewPriority(e.target.value)}>
           <option value="High">High</option>
           <option value="Medium">Medium</option>
           <option value="Low">Low</option>
         </select>
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
+        <input type="date" value={newDueDate} onChange={(e) => setNewDueDate(e.target.value)} />
         <button onClick={addTask}>Add</button>
       </div>
 
       {/* Search & Sort */}
       <div className="search-sort">
-        <input
-          type="text"
-          placeholder="Search tasks..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <input type="text" placeholder="Search tasks..." value={search} onChange={(e) => setSearch(e.target.value)} />
         <select value={sort} onChange={(e) => setSort(e.target.value)}>
           <option value="date">Sort by Date</option>
           <option value="priority">Sort by Priority</option>
@@ -142,73 +163,58 @@ export default function Dashboard() {
 
       {/* Filters */}
       <div className="filters">
-        <button
-          className={filter === "all" ? "active" : ""}
-          onClick={() => setFilter("all")}
-        >
-          All
-        </button>
-        <button
-          className={filter === "active" ? "active" : ""}
-          onClick={() => setFilter("active")}
-        >
-          Active
-        </button>
-        <button
-          className={filter === "completed" ? "active" : ""}
-          onClick={() => setFilter("completed")}
-        >
-          Completed
-        </button>
+        <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>All</button>
+        <button className={filter === "active" ? "active" : ""} onClick={() => setFilter("active")}>Active</button>
+        <button className={filter === "completed" ? "active" : ""} onClick={() => setFilter("completed")}>Completed</button>
       </div>
 
-      {/* Counter & Clear Completed */}
-      <p className="task-counter">
-        Total: {tasks.length} | Active: {tasks.filter((t) => !t.completed).length} | Completed:{" "}
-        {tasks.filter((t) => t.completed).length}
-      </p>
-      <button className="danger-btn" onClick={clearCompleted}>
-        Clear Completed Tasks
-      </button>
+      {/* Counter & Clear */}
+      <p>Total: {tasks.length} | Active: {tasks.filter((t) => !t.completed).length} | Completed: {tasks.filter((t) => t.completed).length}</p>
+      <button className="danger-btn" onClick={clearCompleted}>Clear Completed Tasks</button>
 
       {/* Task List */}
       <ul>
-        {filteredTasks.map((task) => (
-          <li key={task.id} className={task.completed ? "completed" : ""}>
-            <div className="task-left">
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => toggleComplete(task)}
-              />
-              <span>{task.title}</span>
-              {task.priority && (
-                <span
-                  className={
-                    task.priority === "High"
-                      ? "badge-high"
-                      : task.priority === "Medium"
-                      ? "badge-medium"
-                      : "badge-low"
-                  }
-                >
-                  {task.priority}
-                </span>
-              )}
-              {task.dueDate && (
-                <span className="due-date">
-                  Due: {new Date(task.dueDate).toLocaleDateString()}
-                </span>
-              )}
+        {filteredTasks.map((t) => (
+          <li key={t.id} className={t.completed ? "completed" : ""}>
+            <div className="task-row">
+              {/* Checkbox */}
+              <input type="checkbox" checked={t.completed} onChange={() => toggleComplete(t)} className="task-checkbox" />
+
+              {/* Task Name + Priority */}
+              <div className="task-info">
+                <span className="task-title">{t.title}</span>
+                {t.priority && <span className={`badge-${t.priority.toLowerCase()}`}>{t.priority}</span>}
+              </div>
+
+              {/* Due Date */}
+              {t.due_date && <span className="task-date">{new Date(t.due_date).toLocaleDateString()}</span>}
+
+              {/* Edit & Delete */}
+              <div className="task-actions">
+                <button onClick={() => startEditing(t)}>Edit</button>
+                <button onClick={() => deleteTask(t.id)}>Delete</button>
+              </div>
             </div>
-            <button className="danger-btn" onClick={() => deleteTask(task.id)}>
-              Delete
-            </button>
+
+            {/* Editing Form */}
+            {editingTask === t.id && (
+              <div className="editing-form">
+                <input type="text" value={editingTitle} onChange={(e) => setEditingTitle(e.target.value)} />
+                <input type="text" value={editingDescription} onChange={(e) => setEditingDescription(e.target.value)} />
+                <select value={editingPriority} onChange={(e) => setEditingPriority(e.target.value)}>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+                <input type="date" value={editingDueDate} onChange={(e) => setEditingDueDate(e.target.value)} />
+                <button onClick={saveEdit}>Save</button>
+                <button onClick={cancelEdit}>Cancel</button>
+              </div>
+            )}
           </li>
         ))}
       </ul>
 
-      {/* Logout at Bottom */}
       <div className="logout-container">
         <button onClick={handleLogout}>Logout</button>
       </div>

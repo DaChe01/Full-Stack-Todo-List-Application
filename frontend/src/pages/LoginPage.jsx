@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../api/axios";
-import "../index.css"; // ✅ relative import
+import "../index.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +14,7 @@ export default function LoginPage() {
     try {
       const res = await API.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("name", res.data.name || "Developer");
       navigate("/tasks");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -21,10 +22,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-container">
-      <form onSubmit={handleLogin} className="login-form">
-        <h1 className="login-title">Login</h1>
+    <div className="login-container animate-bgGradient flex items-center justify-center px-4">
+      <form
+        onSubmit={handleLogin}
+        className="login-form animate-fadeIn"
+        style={{ animationDelay: "0.2s" }}
+      >
+        <h1 className="login-title">Welcome Back</h1>
+        <p className="homepage-subtext text-center mb-6">
+          Log in to manage your tasks and stay productive!
+        </p>
+
         {error && <p className="login-error">{error}</p>}
+
         <input
           type="email"
           placeholder="Email"
@@ -41,9 +51,16 @@ export default function LoginPage() {
           className="login-input"
           required
         />
-        <button type="submit" className="login-button">
+
+        <button type="submit" className="login-button mt-2">
           Login
         </button>
+
+        {/* Register link */}
+        <p>
+          Don’t have an account?{" "}
+          <Link to="/register">Register</Link>
+        </p>
       </form>
     </div>
   );

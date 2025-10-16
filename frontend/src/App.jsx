@@ -6,13 +6,14 @@ import HomePage from "./pages/HomePage";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/" />; // redirect to HomePage if no token
 }
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<HomePage />} /> {/* root now goes to HomePage */}
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -24,7 +25,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/tasks" />} />
+        <Route path="*" element={<Navigate to="/" />} /> {/* wildcard goes to HomePage */}
       </Routes>
     </Router>
   );

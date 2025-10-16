@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../api/axios";
-import "../index.css"; // Import your CSS file
+import "../index.css";
 
 export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -19,20 +20,29 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await API.post("/auth/register", { email, password });
+      const res = await API.post("/auth/register", { name, email, password });
       localStorage.setItem("token", res.data.token);
-      navigate("/tasks"); // redirect to dashboard
+      localStorage.setItem("name", res.data.name || name);
+      navigate("/tasks");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div className="register-container">
-      <form onSubmit={handleRegister} className="register-form">
-        <h1 className="register-title">Register</h1>
+    <div className="register-container animate-bgGradient flex items-center justify-center px-4">
+      <form onSubmit={handleRegister} className="register-form animate-fadeIn" style={{ animationDelay: "0.2s" }}>
+        <h1 className="register-title">Create Account</h1>
         {error && <p className="register-error">{error}</p>}
 
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="register-input"
+          required
+        />
         <input
           type="email"
           placeholder="Email"
@@ -58,9 +68,13 @@ export default function RegisterPage() {
           required
         />
 
-        <button type="submit" className="register-button">
+        <button type="submit" className="register-button mt-2">
           Register
         </button>
+
+        <p className="register-login-text">
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
       </form>
     </div>
   );
