@@ -1,31 +1,55 @@
-# SPCL Task Manager
+# Project Overview & Features
 
-SPCL Task Manager is a full-stack web application that allows users to efficiently manage their tasks with a modern, responsive, and user-friendly interface. Built with **React** for the frontend, **Node.js/Express** for the backend, and **PostgreSQL** as the database, it includes features like task creation, editing, priority management, due dates, filtering, sorting, and more.
+## SPCL Task Manager
 
----
+A full-stack, modern, and responsive task management application built with React, Node.js/Express, and PostgreSQL. Designed to help users efficiently manage their daily tasks with authentication, filtering, and sorting capabilities.
 
 ## Features
 
-* User authentication with JWT (register and login)
-* Create, update, and delete tasks
-* Mark tasks as completed
-* Set task priority (High, Medium, Low) with color-coded badges
-* Add due dates to tasks
-* Filter tasks by All, Active, Completed
-* Sort tasks by Date, Priority, or Alphabetically
-* Search tasks by title
-* Clear all completed tasks
-* Responsive and modern UI with smooth animations and hover effects
-* Welcome and motivational message on dashboard
+### User Authentication
 
----
+* **Register**: Create an account with name, email, and password.
+* **Login**: Secure login with JWT authentication.
+* **Protected Routes**: Only authenticated users can access their tasks.
 
-## Tech Stack
+### Task Management
 
-* **Frontend:** React, CSS/Tailwind
-* **Backend:** Node.js, Express
-* **Database:** PostgreSQL
-* **Authentication:** JWT
+* **Create Task**: Add new tasks with title, description, priority, and due date.
+* **Update Task**: Modify existing task details.
+* **Toggle Complete**: Mark tasks as complete/incomplete.
+* **Delete Task**: Remove individual tasks.
+* **Clear Completed**: Delete all completed tasks at once.
+
+### Filtering & Sorting
+
+* View **All**, **Active**, or **Completed** tasks.
+* Optional: Filter tasks by priority or due date.
+* Sort tasks to quickly organize your list.
+
+### User Interface
+
+* Fully responsive and modern UI with Tailwind CSS.
+* Clean dashboard layout with task counters and search functionality.
+* Visual feedback for loading, success, and error states.
+
+### Deployment & Environment
+
+* **Frontend**: Hosted on Vercel.
+* **Backend**: Hosted on Render.
+* **Database**: PostgreSQL hosted on Railway.
+* Proper environment variable setup for secure and seamless communication between frontend, backend, and database.
+
+### Tech Stack
+
+* **Frontend**: React, Tailwind CSS, Axios
+* **Backend**: Node.js, Express, JWT, Helmet, CORS
+* **Database**: PostgreSQL
+* **Deployment**: Vercel (Frontend), Render (Backend), Railway (Database)
+
+### Notes
+
+* All routes and API endpoints are secured and fully functional.
+* Tested thoroughly to ensure smooth frontend-backend-database integration.
 
 ---
 
@@ -107,7 +131,7 @@ The app will run on `http://localhost:3000`.
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 This project is fully deployed with the following stack:
 
@@ -225,5 +249,6 @@ After both deployments:
 ### Tasks Dashboard
 
 ![Tasks Page](frontend/public/images/taskspage.png)
+
 
 
