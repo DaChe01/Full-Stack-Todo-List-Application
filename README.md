@@ -107,9 +107,103 @@ The app will run on `http://localhost:3000`.
 
 ---
 
-## Deployment
+## 🚀 Deployment
 
-The frontend can be deployed on **Vercel** or **Netlify**, and the backend can be deployed on **Render**, **Railway**, or any other cloud service. Make sure the frontend API base URL points to your deployed backend.
+This project is fully deployed with the following stack:
+
+* **Frontend**: Vercel
+* **Backend**: Render
+* **Database**: Railway (PostgreSQL)
+
+---
+
+### 1. Backend Deployment (Render)
+
+1. Push your backend code to a public GitHub repository.
+2. Go to [Render](https://render.com/) and create a new **Web Service**.
+3. Connect your GitHub repository and select the backend folder.
+4. Set the **Build Command** and **Start Command** as:
+
+   ```bash
+   Build Command: npm install
+   Start Command: npm start
+   ```
+5. Add the following **Environment Variables** in Render:
+
+   ```bash
+   DATABASE_URL=<Your Railway PostgreSQL Connection URL>
+   JWT_SECRET=<Your Secret Key>
+   FRONTEND_URL=<Your Vercel Domain>
+   PORT=10000
+   ```
+6. Deploy and note down your backend URL, for example:
+
+   ```
+   https://task-manager-application-w05c.onrender.com
+   ```
+
+---
+
+### 2. Frontend Deployment (Vercel)
+
+1. Push your frontend code to a GitHub repository.
+2. Visit [Vercel](https://vercel.com/) and import the frontend repo.
+3. Set up the following **Environment Variables** in Vercel (if required):
+
+   ```bash
+   REACT_APP_API_URL=https://task-manager-application-w05c.onrender.com/api
+   ```
+4. Deploy and verify your frontend URL, for example:
+
+   ```
+   https://full-stack-todo-list-application.vercel.app
+   ```
+
+---
+
+### 3. Database Deployment (Railway)
+
+1. Go to [Railway](https://railway.app/) and create a new **PostgreSQL** project.
+2. Copy the **Connection URL** and paste it into your backend `.env` or Render environment variables.
+3. Connect using `psql` or a GUI client (e.g., TablePlus, pgAdmin) to manage and inspect data.
+
+---
+
+### 4. Connecting Everything
+
+* Ensure your backend `CORS` configuration includes:
+
+  ```js
+  const allowedOrigin = process.env.FRONTEND_URL || "*";
+  app.use(cors({ origin: allowedOrigin, credentials: true }));
+  ```
+* Ensure the frontend `axios.js` base URL points to the deployed backend:
+
+  ```js
+  const API = axios.create({
+    baseURL: "https://task-manager-application-w05c.onrender.com/api", //you backend url
+  });
+  ```
+
+---
+
+### 5. Verification Steps
+
+After both deployments:
+
+1. Open your frontend URL on Vercel.
+2. Test user registration and login.
+3. Verify tasks CRUD operations (add, update, delete, filter).
+4. Confirm data persistence in the Railway database.
+
+---
+
+### Final Deployment URLs
+
+* **Frontend**: [https://full-stack-todo-list-application.vercel.app](https://full-stack-todo-list-application.vercel.app)
+* **Backend API**: [https://task-manager-application-w05c.onrender.com/api](https://task-manager-application-w05c.onrender.com/api)
+* **Database**: PostgreSQL on Railway
+
 
 ---
 
@@ -130,3 +224,4 @@ The frontend can be deployed on **Vercel** or **Netlify**, and the backend can b
 ### Tasks Dashboard
 
 ![Tasks Page](frontend/public/images/taskspage.png)
+
