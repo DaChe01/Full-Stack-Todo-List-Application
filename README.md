@@ -204,6 +204,7 @@ After both deployments:
 * **Backend API**: [https://task-manager-application-w05c.onrender.com/api](https://task-manager-application-w05c.onrender.com/api)
 * **Database**: PostgreSQL on Railway
 
+**Note:** The backend base URL (`/api`) is not directly browsable — it’s used by the frontend and API routes (e.g., `/api/auth/register`, `/api/tasks`).
 
 ---
 
@@ -224,4 +225,5 @@ After both deployments:
 ### Tasks Dashboard
 
 ![Tasks Page](frontend/public/images/taskspage.png)
+
 
